@@ -185,6 +185,9 @@ class TingClientSearchRequest extends TingClientRequest {
   public function processResponse(stdClass $response) {
     $searchResult = new TingClientSearchResult();
 
+//pjo testing
+//print_r($response);
+
     $searchResponse = $response->searchResponse;
     if (isset($searchResponse->error)) {
       throw new TingClientException('Error handling search request: '.self::getValue($searchResponse->error));

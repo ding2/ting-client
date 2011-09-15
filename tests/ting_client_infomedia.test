@@ -1,0 +1,346 @@
+<?php
+
+/**
+ * Test for Ting Infomedia.
+ */
+class TingClientInfomediaTest extends TingClientTest {
+  const PIN    = '1234';
+  const USER   = '1234567890';
+  const AGENCY = '100200';
+  const FAUST  = '27882501';
+  const ISBN   = '978-87-92359-25-4';
+  const FORMAT = 'xml';
+
+  const GETREVIEW_EMPTY = '<?xml version="1.0" encoding="UTF-8"?><uaim:getReviewResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"></uaim:getReviewResponse>';
+  const CHECKREVIEW_EMPTY = '<?xml version="1.0" encoding="UTF-8"?><uaim:checkReviewResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"></uaim:checkReviewResponse>';
+  const GETREVIEW_ERROR = '<?xml version="1.0" encoding="UTF-8"?><uaim:getReviewResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"><uaim:error>error_in_request</uaim:error></uaim:getReviewResponse>';
+  const CHECKREVIEW_ERROR = '<?xml version="1.0" encoding="UTF-8"?><uaim:checkReviewResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"><uaim:error>error_in_request</uaim:error></uaim:checkReviewResponse>';
+  const CHECKREVIEW = '<?xml version="1.0" encoding="UTF-8"?><uaim:checkReviewResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"><uaim:checkReviewResponseDetails><uaim:workIdentifier> 27882501 </uaim:workIdentifier><uaim:reviewsCount>6</uaim:reviewsCount></uaim:checkReviewResponseDetails></uaim:checkReviewResponse>';
+  const GETREVIEW = '<?xml version="1.0" encoding="UTF-8"?><uaim:getReviewResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"><uaim:getReviewResponseDetails><uaim:workIdentifier>BMA\2009\08\24\e1a45d6a.xml </uaim:workIdentifier><uaim:reviewsCount>2</uaim:reviewsCount><uaim:imArticle><![CDATA[<SOME DATA>data</SOME DATA>]]></uaim:imArticle></uaim:getReviewResponseDetails><uaim:getReviewResponseDetails><uaim:workIdentifier>JYP\2009\08\27\e1a59039.xml </uaim:workIdentifier><uaim:reviewsCount>2</uaim:reviewsCount><uaim:imArticle><![CDATA[<SOME DATA>data2</SOME DATA>]]></uaim:imArticle></uaim:getReviewResponseDetails></uaim:getReviewResponse>';
+
+  const GETARTICLE_EMPTY = '<?xml version="1.0" encoding="UTF-8"?><uaim:getArticleResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"></uaim:getArticleResponse>';
+  const CHECKARTICLE_EMPTY = '<?xml version="1.0" encoding="UTF-8"?><uaim:checkArticleResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"></uaim:checkArticleResponse>';
+  const GETARTICLE_ERROR = '<?xml version="1.0" encoding="UTF-8"?><uaim:getArticleResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"><uaim:error>error_in_request</uaim:error></uaim:getArticleResponse>';
+  const CHECKARTICLE_ERROR = '<?xml version="1.0" encoding="UTF-8"?><uaim:checkArticleResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"><uaim:error>error_in_request</uaim:error></uaim:checkArticleResponse>';
+  const CHECKARTICLE = '<?xml version="1.0" encoding="UTF-8"?><uaim:checkArticleResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"><uaim:checkArticleResponseDetails><uaim:articleVerified>true</uaim:articleVerified><uaim:articleIdentifier>BMA\2009\08\24\e1a45d6a.xml </uaim:articleIdentifier></uaim:checkArticleResponseDetails></uaim:checkArticleResponse>';
+  const GETARTICLE = '<?xml version="1.0" encoding="UTF-8"?><uaim:getArticleResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia"><uaim:getArticleResponseDetails><uaim:articleVerified>true</uaim:articleVerified><uaim:articleIdentifier>BMA\2009\08\24\e1a45d6a.xml </uaim:articleIdentifier><uaim:imArticle><![CDATA[<SOME DATA>data</SOME DATA>]]></uaim:imArticle></uaim:getArticleResponseDetails></uaim:getArticleResponse>';
+
+  function __construct($test_id = NULL, $includes = array()) {
+
+    $includes[] = '/../lib/request/TingClientInfomediaRequest.php';
+    $includes[] = '/../lib/request/TingClientInfomediaArticleRequest.php';
+    $includes[] = '/../lib/request/TingClientInfomediaReviewRequest.php';
+    $includes[] = '/../lib/result/infomedia/TingClientInfomediaResult.php';
+    parent::__construct($test_id, $includes);
+  }
+
+  /**
+   * Test info.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Ting Client infomedia',
+      'description' => 'Test the Ting Infomedia client.' ,
+      'group' => 'Ting Client',
+    );
+  }
+
+  /************************************************************* 
+    Review requests
+   *************************************************************/
+
+  public function testCheckReviewRequest_setup_faust() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->setAgency(self::AGENCY);
+    $request->makeCheck(); 
+    $request->setPin(self::PIN);
+    $request->setUser(self::USER);
+    $request->setFaust(self::FAUST);
+    $expectedParameters = array('workIdentifier' => array('faust' => self::FAUST),
+                                'libraryCode' => self::AGENCY,
+                                'userId' => self::USER,
+                                'userPinCode' => self::PIN,
+                                'outputType' => 'xml',
+                                'action' => 'checkReviewRequest');
+    $this->assertEqual($request->getRequest()->getParameters(), $expectedParameters , 'checkReviewRequest: prepared with faust');
+  }
+
+  public function testCheckReviewRequest_setup_faust_isbn() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->setAgency(self::AGENCY);
+    $request->makeCheck(); 
+    $request->setPin(self::PIN);
+    $request->setUser(self::USER);
+    $request->setFaust(self::FAUST);
+    $request->setISBN(self::ISBN);
+    $expectedParameters = array('workIdentifier' => array('faust' => self::FAUST),
+                                'libraryCode' => self::AGENCY,
+                                'userId' => self::USER,
+                                'userPinCode' => self::PIN,
+                                'outputType' => 'xml',
+                                'action' => 'checkReviewRequest');
+    $this->assertEqual($request->getRequest()->getParameters(), $expectedParameters , 'checkReviewRequest: Faust overrules ISBN');
+  }
+
+  public function testCheckReviewRequest_setup_isbn() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->setAgency(self::AGENCY);
+    $request->makeCheck(); 
+    $request->setPin(self::PIN);
+    $request->setUser(self::USER);
+    $request->setISBN(self::ISBN);
+    $expectedParameters = array('workIdentifier' => array('isbn' => self::ISBN),
+                                'libraryCode' => self::AGENCY,
+                                'userId' => self::USER,
+                                'userPinCode' => self::PIN,
+                                'outputType' => 'xml',
+                                'action' => 'checkReviewRequest');
+    $this->assertEqual($request->getRequest()->getParameters(), $expectedParameters, 'checkReviewRequest: prepared with ISBN');
+  }
+
+  public function testGetReviewRequest_setup_faust() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->setAgency(self::AGENCY);
+    $request->makeGet(); 
+    $request->setPin(self::PIN);
+    $request->setUser(self::USER);
+    $request->setFaust(self::FAUST);
+    $expectedParameters = array('workIdentifier' => array('faust' => self::FAUST),
+                                'libraryCode' => self::AGENCY,
+                                'userId' => self::USER,
+                                'userPinCode' => self::PIN,
+                                'outputType' => 'xml',
+                                'action' => 'getReviewRequest');
+    $this->assertEqual($request->getRequest()->getParameters(), $expectedParameters , 'getReviewRequest: prepared with faust');
+  }
+
+  public function testGetReviewRequest_setup_faust_isbn() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->setAgency(self::AGENCY);
+    $request->makeGet(); 
+    $request->setPin(self::PIN);
+    $request->setUser(self::USER);
+    $request->setFaust(self::FAUST);
+    $request->setISBN(self::ISBN);
+    $expectedParameters = array('workIdentifier' => array('faust' => self::FAUST),
+                                'libraryCode' => self::AGENCY,
+                                'userId' => self::USER,
+                                'userPinCode' => self::PIN,
+                                'outputType' => 'xml',
+                                'action' => 'getReviewRequest');
+    $this->assertEqual($request->getRequest()->getParameters(), $expectedParameters , 'getReviewRequest: Faust overrules ISBN');
+  }
+
+  public function testGetReviewRequest_setup_isbn() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->setAgency(self::AGENCY);
+    $request->makeGet(); 
+    $request->setPin(self::PIN);
+    $request->setUser(self::USER);
+    $request->setISBN(self::ISBN);
+    $expectedParameters = array('workIdentifier' => array('isbn' => self::ISBN),
+                                'libraryCode' => self::AGENCY,
+                                'userId' => self::USER,
+                                'userPinCode' => self::PIN,
+                                'outputType' => 'xml',
+                                'action' => 'getReviewRequest');
+    $this->assertEqual($request->getRequest()->getParameters(), $expectedParameters, 'getReviewRequest: prepared with ISBN');
+  }
+
+  public function testParseCheckReviewRequest() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->makeCheck();
+    $result = $request->parse(self::CHECKREVIEW);
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Review'; 
+    $expectedResult->length = 1; 
+    $expectedResult->parts[] = array('count' => '6', 'identifier' => ' 27882501 ');
+    $this->assertEqual($result, $expectedResult, 'checkReviewRequest: response contains data'); 
+  }
+
+  public function testParseCheckReviewRequest_empty() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->makeCheck();
+    $result = $request->parse(self::CHECKREVIEW_EMPTY); 
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Review'; 
+    $this->assertEqual($result, $expectedResult, 'checkReviewRequest: empty response'); 
+  }
+
+  public function testParseCheckReviewRequest_error() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->makeCheck();
+    $result = $request->parse(self::CHECKREVIEW_ERROR); 
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Review'; 
+    $expectedResult->error = 'error_in_request';
+    $this->assertEqual($result, $expectedResult, 'checkReviewRequest: error message'); 
+  }
+
+  /* What is returned */
+  /*
+  const GETREVIEW = '<?xml version="1.0" encoding="UTF-8"?>
+  <uaim:getReviewResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia">
+    <uaim:getReviewResponseDetails>
+      <uaim:workIdentifier>BMA\2009\08\24\e1a45d6a.xml </uaim:workIdentifier>
+      <uaim:reviewsCount>2</uaim:reviewsCount>
+      <uaim:imArticle><![CDATA[<SOME DATA>data</SOME DATA>]]></uaim:imArticle>
+    </uaim:getReviewResponseDetails>
+    <uaim:getReviewResponseDetails>
+      <uaim:workIdentifier>JYP\2009\08\27\e1a59039.xml </uaim:workIdentifier>
+      <uaim:reviewsCount>2</uaim:reviewsCount>
+      <uaim:imArticle><![CDATA[<SOME DATA>data2</SOME DATA>]]></uaim:imArticle>
+    </uaim:getReviewResponseDetails>
+  </uaim:getReviewResponse>';
+  */
+
+  /* What should be returned (XSD) - give or take */
+  /*
+  const GETREVIEW = '<?xml version="1.0" encoding="UTF-8"?>
+  <uaim:getReviewResponse xmlns:uaim="http://oss.dbc.dk/ns/useraccessinfomedia">
+    <uaim:getReviewResponseDetails>
+      <uaim:workIdentifier> 27882501 </uaim:workIdentifier>
+      <uaim:reviewsCount>2</uaim:reviewsCount>
+      <uaim:articleIdentifier>BMA\2009\08\24\e1a45d6a.xml </uaim:articleIdentifier>
+      <uaim:articleIdentifier>JYP\2009\08\27\e1a59039.xml </uaim:articleIdentifier>
+      <uaim:imArticle><![CDATA[<SOME DATA>data</SOME DATA>]]></uaim:imArticle>
+      <uaim:imArticle><![CDATA[<SOME DATA>data2</SOME DATA>]]></uaim:imArticle>
+    </uaim:getReviewResponseDetails>
+    <uaim:getReviewResponseDetails>
+      <uaim:reviewsCount>2</uaim:reviewsCount>
+    </uaim:getReviewResponseDetails>
+  </uaim:getReviewResponse>';
+  */
+
+  public function testParseGetReviewRequest() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->makeGet();
+    $result = $request->parse(self::GETREVIEW); 
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Review'; 
+    $expectedResult->length = 2;
+    $expectedResult->parts[] = array('identifier' => 'BMA\2009\08\24\e1a45d6a.xml ', 'count' => 2, 'identifier_list' => array(), 'article_list' => array('<SOME DATA>data</SOME DATA>', ),);
+    $expectedResult->parts[] = array('identifier' => 'JYP\2009\08\27\e1a59039.xml ', 'count' => 2, 'identifier_list' => array(), 'article_list' => array('<SOME DATA>data2</SOME DATA>', ),);
+    /* how data should be
+    $expectedResult->length = 1;
+    $expectedResult->parts[] = array('count' => '2', 'identifier' => ' 27882501 ', 'identifier_list' => array('BMA\2009\08\24\e1a45d6a.xml ', 'JYP\2009\08\27\e1a59039.xml ',), 'article_list' => array('<SOME DATA>data</SOME DATA>', '<SOME DATA>data2</SOME DATA>',));
+    */
+    $this->assertEqual($result, $expectedResult); 
+  }
+
+  public function testParseGetReviewRequest_empty() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->makeGet();
+    $result = $request->parse(self::CHECKREVIEW_EMPTY); 
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Review'; 
+    $this->assertEqual($result, $expectedResult, 'getReviewRequest: empty response'); 
+  }
+
+  public function testParseGetReviewRequest_error() {
+    $request = $this->requestFactory->getInfomediaReviewRequest();
+    $request->makeGet();
+    $result = $request->parse(self::GETREVIEW_ERROR); 
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Review'; 
+    $expectedResult->error = 'error_in_request';
+    $this->assertEqual($result, $expectedResult, 'getInfomediaReviewRequest: error message'); 
+  }
+
+  /************************************************************* 
+    Article requests
+   *************************************************************/
+
+  public function testCheckArticleRequest_setup_faust() {
+    $request = $this->requestFactory->getInfomediaArticleRequest();
+    $request->setAgency(self::AGENCY);
+    $request->makeCheck(); 
+    $request->setPin(self::PIN);
+    $request->setUser(self::USER);
+    $request->setFaust(self::FAUST);
+    $expectedParameters = array('articleIdentifier' => array('faust' => self::FAUST),
+                                'libraryCode' => self::AGENCY,
+                                'userId' => self::USER,
+                                'userPinCode' => self::PIN,
+                                'outputType' => 'xml',
+                                'action' => 'checkArticleRequest');
+    $this->assertEqual($request->getRequest()->getParameters(), $expectedParameters, 'checkArticleRequest: prepared with faust');
+  }
+
+  public function testGetArticleRequest_setup_faust() {
+    $request = $this->requestFactory->getInfomediaArticleRequest();
+    $request->setAgency(self::AGENCY);
+    $request->makeGet(); 
+    $request->setPin(self::PIN);
+    $request->setUser(self::USER);
+    $request->setFaust(self::FAUST);
+    $expectedParameters = array('articleIdentifier' => array('faust' => self::FAUST),
+                                'libraryCode' => self::AGENCY,
+                                'userId' => self::USER,
+                                'userPinCode' => self::PIN,
+                                'outputType' => 'xml',
+                                'action' => 'getArticleRequest');
+    $this->assertEqual($request->getRequest()->getParameters(), $expectedParameters, 'getArticleRequest: prepared with faust');
+  }
+
+  public function testParseCheckArticleRequest() { 
+    $request = $this->requestFactory->getInfomediaArticleRequest();
+    $request->makeCheck();
+    $result = $request->parse(self::CHECKARTICLE);
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Article'; 
+    $expectedResult->length = 1; 
+    $expectedResult->parts[] = array('verified' => true, 'identifier' => 'BMA\2009\08\24\e1a45d6a.xml ');
+    $this->assertEqual($result, $expectedResult, 'checkArticleRequest: response contains data');
+  }
+
+  public function testParseCheckArticleRequest_empty() {
+    $request = $this->requestFactory->getInfomediaArticleRequest();
+    $request->makeCheck();
+    $result = $request->parse(self::CHECKARTICLE_EMPTY); 
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Article'; 
+    $this->assertEqual($result, $expectedResult, 'checkArticleRequest: empty response');
+  }
+
+  public function testParseCheckArticleRequest_error() {
+    $request = $this->requestFactory->getInfomediaArticleRequest();
+    $request->makeCheck();
+    $result = $request->parse(self::CHECKARTICLE_ERROR);
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->error = 'error_in_request';
+    $expectedResult->type = 'Article'; 
+    $this->assertEqual($result, $expectedResult, 'checkArticleRequest: error message'); 
+  }
+
+  public function testParseGetArticleRequest() {
+    $request = $this->requestFactory->getInfomediaArticleRequest();
+    $request->makeGet();
+    $result = $request->parse(self::GETARTICLE);
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Article'; 
+    $expectedResult->length = 1; 
+    $expectedResult->parts[] = array('identifier' => 'BMA\2009\08\24\e1a45d6a.xml ', 'verified' => TRUE, 'article' => '<SOME DATA>data</SOME DATA>'); 
+    $this->assertEqual($result, $expectedResult, 'getArticleRequest: response contains data'); 
+  }
+
+  public function testParseGetArticleRequest_empty() {
+    $request = $this->requestFactory->getInfomediaArticleRequest();
+    $request->makeGet(); 
+    $result = $request->parse(self::GETARTICLE_EMPTY); 
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->type = 'Article'; 
+    $this->assertEqual($result, $expectedResult, 'getArticleRequest: empty response');
+  }
+
+  public function testParseGetArticleRequest_error() {
+    $request = $this->requestFactory->getInfomediaArticleRequest();
+    $request->makeGet(); 
+    $result = $request->parse(self::GETARTICLE_ERROR);
+    $expectedResult = new TingClientInfomediaResult(); 
+    $expectedResult->error = 'error_in_request';
+    $expectedResult->type = 'Article'; 
+    $this->assertEqual($result, $expectedResult, 'getArticleRequest: error message'); 
+  }
+}
+

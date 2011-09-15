@@ -11,6 +11,7 @@ class TingClientTest extends DrupalWebTestCase {
   const SCAN_URL = 'http://openscan.addi.dk/1.7/';
   const RECOMMENDATION_URL = 'http://openadhl.addi.dk/1.1/';
   const SPELL_URL = 'http://openspell.addi.dk/1.2/';
+  const INFOMEDIA_URL = 'http://didicas.dbc.dk/useraccessinfomedia_1.1/';
 
   /**
    * @var TingClient
@@ -67,7 +68,7 @@ class TingClientTest extends DrupalWebTestCase {
    * Set up modules and client instance.
    */
   public function setUp() {
-    parent::setUp('nanosoap');
+    parent::setUp();
 
     module_load_include('inc', 'nanosoap');
 
@@ -78,6 +79,7 @@ class TingClientTest extends DrupalWebTestCase {
       'object' => self::SEARCH_URL,
       'recommendation' => self::RECOMMENDATION_URL,
       'spell' => self::SPELL_URL,
+      'infomedia' => self::INFOMEDIA_URL,
     ));
 
     $requestAdapter = new TingClientRequestAdapter();
