@@ -253,9 +253,19 @@ class TingClientSearchRequest extends TingClientRequest {
           $key1 = $prefix . ':' . $name;
           if (isset($element->{'@type'}) && strpos($element->{'@type'}->{'$'}, ':') !== FALSE) {
             list($type_prefix, $type_name) = explode(':', $element->{'@type'}->{'$'}, 2);
-            $type_namespace = $namespaces[isset($type_prefix) ? $type_prefix : '$'];
-            $type_prefix = isset($prefixes[$type_namespace]) ? $prefixes[$type_namespace] : 'unknown';
-            $key2 = $type_prefix . ':' . $type_name;
+            // This if statement checks if the namespace exists as trying to
+            // access the array with a not defined namespace will give a PHP
+            // notice error.
+            $type_prefix_namespace = isset($type_prefix) ? $type_prefix : '$';
+            if (isset($namespaces[$type_prefix_namespace])) {
+              $type_namespace = $namespaces[$type_prefix_namespace];
+              $type_prefix = isset($prefixes[$type_namespace]) ? $prefixes[$type_namespace] : 'unknown';
+              $key2 = $type_prefix . ':' . $type_name;
+            }
+            else {
+              $key2 = '';
+              trigger_error('Undefined XML namespace (' . $type_prefix_namespace . ') in ' . __FILE__ . ' at ' . __LINE__, E_USER_NOTICE);
+            }
           }
           else {
             $key2 = '';
