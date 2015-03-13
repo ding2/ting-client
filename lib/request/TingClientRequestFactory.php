@@ -26,6 +26,9 @@ class TingClientRequestFactory {
 	 * @return TingClientSearchRequest
 	 */
 	public function getSearchRequest() {
+		if (empty($this->urls['search'])) {
+			return FALSE;
+		}
 		return new TingClientSearchRequest($this->urls['search']);
 	}
 
@@ -33,6 +36,9 @@ class TingClientRequestFactory {
 	 * @return TingClientScanRequest
 	 */
 	public function getScanRequest() {
+		if (empty($this->urls['scan'])) {
+			return FALSE;
+		}
 		return new TingClientScanRequest($this->urls['scan']);
 	}
 
@@ -40,6 +46,9 @@ class TingClientRequestFactory {
 	 * @return TingClientCollectionRequest
 	 */
 	public function getCollectionRequest() {
+		if (empty($this->urls['collection'])) {
+			return FALSE;
+		}
 		return new TingClientCollectionRequest($this->urls['collection']);
 	}
 
@@ -47,6 +56,9 @@ class TingClientRequestFactory {
 	 * @return TingClientObjectRequest
 	 */
 	public function getObjectRequest() {
+		if (empty($this->urls['object'])) {
+			return FALSE;
+		}
 		return new TingClientObjectRequest($this->urls['object']);
 	}
 
@@ -54,6 +66,9 @@ class TingClientRequestFactory {
 	 * @return TingClientSpellRequest
 	 */
 	public function getSpellRequest() {
+		if (empty($this->urls['spell'])) {
+			return FALSE;
+		}
 		return new TingClientSpellRequest($this->urls['spell']);
 	}
 
@@ -61,6 +76,9 @@ class TingClientRequestFactory {
 	 * @return TingClientObjectRecommendationRequest
 	 */
 	function getObjectRecommendationRequest() {
+		if (empty($this->urls['recommendation'])) {
+			return FALSE;
+		}
 		return new TingClientObjectRecommendationRequest($this->urls['recommendation']);
 	}
 
@@ -68,6 +86,9 @@ class TingClientRequestFactory {
 	 * @ return TingClientInfomediaArticleRequest
 	 */
 	function getInfomediaArticleRequest(){
+		if (empty($this->urls['infomedia'])) {
+			return FALSE;
+		}
 		return new TingClientInfomediaArticleRequest($this->urls['infomedia']);
 	}
 
@@ -75,6 +96,9 @@ class TingClientRequestFactory {
 	 * @return TingClientInfomediaReviewRequest
 	 */
 	function getInfomediaReviewRequest(){
+		if (empty($this->urls['infomedia'])) {
+			return FALSE;
+		}
 		return new TingClientInfomediaReviewRequest($this->urls['infomedia']);
 	}
 
@@ -82,6 +106,9 @@ class TingClientRequestFactory {
 	 * @return TingFulltextRequest
 	 */
 	function getFulltextRequest() {
+		if (empty($this->urls['object'])) {
+			return FALSE;
+		}
 		return new TingFulltextRequest($this->urls['object']);
 	}
 }
