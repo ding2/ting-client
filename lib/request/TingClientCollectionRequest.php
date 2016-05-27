@@ -21,7 +21,15 @@ class TingClientCollectionRequest extends TingClientSearchRequest {
   }
 
   public function getRequest() {
-    $this->setQuery('rec.id=' . $this->id);
+    $id_array[] = $this->id;
+    if(strpos($this->id, $this->agency.'-katalog') !== FALSE) {
+      list($owner, $id) = explode(':', $this->id);
+      $this->setQuery('rec.id=870970-basis:' . $id . ' OR rec.id=' . $this->id);
+    }
+    else{
+      $this->setQuery('rec.id=' . $this->id);
+    }
+
     $this->setAgency($this->agency);
     $this->setAllObjects(true);
     $this->setNumResults(1);
