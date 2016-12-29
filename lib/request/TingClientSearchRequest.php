@@ -194,7 +194,7 @@ class TingClientSearchRequest extends TingClientRequest {
   public function setProfile($profile) {
     $this->profile = $profile;
   }
-  
+
   public function getCollectionType() {
     return $this->collectionType;
   }
@@ -301,6 +301,9 @@ class TingClientSearchRequest extends TingClientRequest {
           'relationType' => $relation->relationType->{'$'},
           'relationUri' => $relation->relationUri->{'$'},
         );
+        if (isset($relation->linkObject->access)) {
+          $relation_data->linkAccess = $relation->linkObject->access->{'$'};
+        };
         if (isset($relation->relationObject)) {
           $relation_object = $this->generateObject($relation->relationObject->object, $namespaces);
           $relation_data->relationObject = $relation_object;
