@@ -231,6 +231,12 @@ class TingClientSearchRequest extends TingClientRequest {
     $searchResult->more = (strcasecmp('true', self::getValue($searchResponse->result->more)) == 0);
     $searchResult->sortUsed = isset($searchResponse->result->sortUsed) ? self::getValue($searchResponse->result->sortUsed) : '';
 
+    $error = isset($searchResponse->error) ? self::getValue($searchResponse->error) : NULL;
+    if(isset($error)){
+      $searchResult->error = $error;
+    }
+
+
     if (isset($searchResponse->result->searchResult) && is_array($searchResponse->result->searchResult)) {
       foreach ($searchResponse->result->searchResult as $entry => $result) {
         $searchResult->collections[] = $this->generateCollection($result->collection, (array)$response->{'@namespaces'});
