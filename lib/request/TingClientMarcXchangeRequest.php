@@ -73,8 +73,14 @@ class TingClientMarcXchangeRequest extends TingClientRequest {
 
     // Collect each marc object from the search result.
     foreach ($response->searchResponse->result->searchResult as $result) {
-      $object = $result->collection->object[0];
-      $objects[$object->identifier->{'$'}] = new TingMarcResult($object);
+      if (is_array($result->collection->object)) {
+        $object = $result->collection->object[0];
+        $objects[$object->identifier->{'$'}] = new TingMarcResult($object);
+      }
+      else {
+        $object = $result->collection->object;
+        watchdog_exception('opensearch', new TingClientException('Unexpected error on object in getObject response: ' . var_export($object, TRUE)));
+      }
     }
 
     return $objects;
