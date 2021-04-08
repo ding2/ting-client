@@ -5,7 +5,7 @@ class TingClientCollectionRequest extends TingClientSearchRequest {
   protected $agency;
 
   public function getObjectId() {
-    return $id;
+    return $this->id;
   }
 
   public function setObjectId($id) {
